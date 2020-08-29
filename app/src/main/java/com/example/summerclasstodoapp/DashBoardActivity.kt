@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -48,6 +49,28 @@ class DashBoardActivity : AppCompatActivity() {
         }
     }
 
+    fun updateToDo(toDo: ToDo){
+        val dialog = AlertDialog.Builder(this)
+        dialog.setTitle("Update ToDo")
+        val view = layoutInflater.inflate(R.layout.dialog_dashboard, null)
+        val toDoName = view.findViewById<EditText>(R.id.ev_dialog)
+        toDoName.setText(toDo.name)
+        dialog.setView(view)
+        dialog.setPositiveButton("Update") { _: DialogInterface, _: Int ->
+            if(toDoName.text.isNotEmpty()){
+                toDo.name = toDoName.text.toString()
+                dbHandler.updateToDo(toDo)
+                refreshList()
+            }
+        }
+
+        dialog.setNegativeButton("Cancel"){ _: DialogInterface, _: Int ->
+
+        }
+
+        dialog.show()
+    }
+
     override fun onResume() {
         refreshList()
         super.onResume()
@@ -78,6 +101,33 @@ class DashBoardActivity : AppCompatActivity() {
                 intent.putExtra(INTENT_TODO_ID, list[p1].id)
                 intent.putExtra(INTENT_TODO_NAME, list[p1].name)
                 activity.startActivity(intent)
+            }
+
+            holder.menu.setOnClickListener{
+                val popup = PopupMenu(activity,holder.menu)
+                popup.inflate(R.menu.dashboard_child)
+                popup.setOnMenuItemClickListener {
+                    when(it.itemId){
+                        R.id.edit_menu->{
+                            activity.updateToDo(list[p1])
+                        }
+                        R.id.delete_menu->{
+                            val dialog = AlertDialog.Builder(activity)
+                            dialog.setTitle("Are you sure")
+                            dialog.setMessage("Do you want to delete this task?")
+                            dialog.setPositiveButton("Continue") { _: DialogInterface, _: Int ->
+                                activity.dbHandler.deleteToDo(list[p1].id)
+                                activity.refreshList()
+                            }
+                            dialog.setNegativeButton("Cancel") { _: DialogInterface, _: Int ->
+                            }
+                            dialog.show()
+                        }
+
+                    }
+                    true
+                }
+                popup.show()
             }
         }
 
