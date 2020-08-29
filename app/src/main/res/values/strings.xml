@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">ToDoApp</string>
+    <string name="app_name">TodoApp</string>
+
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+
 </resources>
